@@ -1,5 +1,4 @@
 from sklearn.base import BaseEstimator, ClassifierMixin
-from sklearn.metrics import brier_score_loss
 import subprocess
 import numpy as np
 import os
@@ -29,7 +28,8 @@ class BayesPointMachine(BaseEstimator, ClassifierMixin):
         self.multiclass = multiclass
         self.trained = False
         self.model_name = "BinaryBayesPointMachine" if not self.multiclass else "MulticlassBayesPointMachine"
-        self._classes = set()
+        self._classes = dict()
+        # self._classes = set()
 
     def fit(self, X, y=None):
         """
@@ -39,7 +39,8 @@ class BayesPointMachine(BaseEstimator, ClassifierMixin):
         if len(y.shape) > 1 and y.shape[1] > 1:
             y = np.argmax(y, axis=1)
 
-        self._classes = set(y)
+        self._classes = dict((c, y_c) for y_c, c in enumerate(set(y)))
+        # self._classes = set(y)
 
         # print('Data shape: ' + str(X.shape))
         print('Classes: ' + str(self._classes))
@@ -122,7 +123,8 @@ class BayesPointMachine(BaseEstimator, ClassifierMixin):
                 preds = np.empty((len(self._classes),))
                 for pred in line.split(' '):
                     y, prob = pred.split('=')
-                    preds[y] = prob
+                    preds[self._classes[int(y)]] = prob
+                    # preds[int(y)] = prob
                 yield preds
 
 
@@ -139,7 +141,7 @@ if __name__ == "__main__":
 
     print('predictions: ' + str(bpm.predict(np.array(X_test))))
 
-    # Multiclass
+    # Multi-class
     from sklearn.datasets import make_blobs
     from sklearn.cross_validation import train_test_split
 
@@ -150,7 +152,7 @@ if __name__ == "__main__":
     bpm = BayesPointMachine(multiclass=True)
     y[:n_samples / 3] = 0
     y[n_samples / 3:n_samples * 2 / 3] = 1
-    y[n_samples * 2 / 3:] = 2
+    y[n_samples * 2 / 3:] = 4
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=.33, random_state=42)
 
     bpm.fit(X_train, y_train)
@@ -160,5 +162,5 @@ if __name__ == "__main__":
     print('\n'.join("true=%d, pred=%d" % (y_i, y_i_hat) for (y_i, y_i_hat) in zip(y_train, y_hat)))
     # clf_score = brier_score_loss(y_test, prob_pos_clf)
     # print("No calibration: %1.3f" % clf_score)
-    print('Error rate = %.4f' % np.mean([0.0 if y_i == y_hat else 1.0 for (y_i, y_i_hat)
+    print('Error rate = %.4f' % np.mean([0.0 if int(y_i) == int(y_i_hat) else 1.0 for (y_i, y_i_hat)
                                         in zip(y_train.reshape(-1).tolist(), y_hat)]))
