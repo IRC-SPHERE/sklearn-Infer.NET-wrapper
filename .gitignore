@@ -64,3 +64,10 @@ predictions.txt
 test.txt
 train.txt
 trained-binary-bpm.bin
+bin/Infer.Compiler.dll
+bin/Infer.Learners.Classifier.dll
+bin/Infer.Learners.dll
+bin/Infer.Learners.Recommender.dll
+bin/Infer.Learners.Runners.dll
+bin/Infer.Runtime.dll
+bin/Learner.exe
