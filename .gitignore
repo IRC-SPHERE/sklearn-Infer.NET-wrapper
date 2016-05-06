@@ -71,3 +71,16 @@ bin/Infer.Learners.Recommender.dll
 bin/Infer.Learners.Runners.dll
 bin/Infer.Runtime.dll
 bin/Learner.exe
+bin/Infer.Compiler.pdb
+bin/Infer.Compiler.xml
+bin/Infer.FSharp.dll
+bin/Infer.Learners.Classifier.XML
+bin/Infer.Learners.Classifier.pdb
+bin/Infer.Learners.Recommender.XML
+bin/Infer.Learners.Recommender.pdb
+bin/Infer.Learners.Runners.pdb
+bin/Infer.Learners.XML
+bin/Infer.Learners.pdb
+bin/Infer.Runtime.XML
+bin/Infer.Runtime.pdb
+bin/Tutorials.exe
