@@ -46,9 +46,12 @@ from bayes_point_machine import BayesPointMachine
 
 h = .02  # step size in the mesh
 
-names = ["Nearest Neighbors", "Linear SVM", "RBF SVM", "Decision Tree",
-         "Random Forest", "AdaBoost", "Naive Bayes", "Linear Discriminant Analysis",
-         "Quadratic Discriminant Analysis", "Linear BPM"]
+from sklearn.preprocessing import PolynomialFeatures
+from sklearn.pipeline import Pipeline
+
+names = ["KNN (3)", "Linear SVM", "RBF SVM", "Decision Tree",
+         "Random Forest", "AdaBoost", "Naive Bayes", "FDA",
+         "QDA", "Linear BPM", "Quadratic BPM", "Cubic BPM"]
 classifiers = [
     KNeighborsClassifier(3),
     SVC(kernel="linear", C=0.025),
@@ -59,7 +62,10 @@ classifiers = [
     GaussianNB(),
     LinearDiscriminantAnalysis(),
     QuadraticDiscriminantAnalysis(),
-    BayesPointMachine()]
+    BayesPointMachine(),
+    Pipeline([('poly2', PolynomialFeatures(degree=2)), ('bpm', BayesPointMachine())]),
+    Pipeline([('poly3', PolynomialFeatures(degree=3)), ('bpm', BayesPointMachine())])
+]
 
 X, y = make_classification(n_features=2, n_redundant=0, n_informative=2,
                            random_state=1, n_clusters_per_class=1)
@@ -115,7 +121,7 @@ for ds in datasets:
 
         # Put the result into a color plot
         Z = Z.reshape(xx.shape)
-        ax.contourf(xx, yy, Z, cmap=cm, alpha=.8)
+        ax.contourf(xx, yy, Z, 51, cmap=cm, alpha=.8)
 
         # Plot also the training points
         ax.scatter(X_train[:, 0], X_train[:, 1], c=y_train, cmap=cm_bright)

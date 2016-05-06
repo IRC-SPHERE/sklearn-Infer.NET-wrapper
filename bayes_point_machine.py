@@ -112,7 +112,7 @@ class BayesPointMachine(BaseEstimator, ClassifierMixin):
         with open(filename, 'w') as f:
             for x_i, y_i in zip(X, y):
                 if hasattr(x_i, '__iter__'):
-                    f.write('%d ' % y_i + ' '.join('%d:%d' % (j, x_ij) for j, x_ij in enumerate(x_i)) + '\n')
+                    f.write('%d ' % y_i + ' '.join('%d:%f' % (j, x_ij) for j, x_ij in enumerate(x_i)) + '\n')
                 else:
                     f.write('%d 0:%d\n' % (y_i, x_i))
 
