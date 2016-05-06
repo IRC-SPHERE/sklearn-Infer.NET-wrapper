@@ -60,3 +60,7 @@ target/
 
 #Ipython Notebook
 .ipynb_checkpoints
+predictions.txt
+test.txt
+train.txt
+trained-binary-bpm.bin
