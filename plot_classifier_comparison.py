@@ -30,6 +30,7 @@ print(__doc__)
 # License: BSD 3 clause
 
 import numpy as np
+from scipy.io import savemat
 import matplotlib.pyplot as plt
 from matplotlib.colors import ListedColormap
 from sklearn.cross_validation import train_test_split
@@ -47,11 +48,12 @@ from bayes_point_machine import BayesPointMachine
 h = .02  # step size in the mesh
 
 from sklearn.preprocessing import PolynomialFeatures
+from sklearn.kernel_approximation import Nystroem
 from sklearn.pipeline import Pipeline
 
 names = ["KNN (3)", "Linear SVM", "RBF SVM", "Decision Tree",
          "Random Forest", "AdaBoost", "Naive Bayes", "FDA",
-         "QDA", "Linear BPM", "Quadratic BPM", "Cubic BPM"]
+         "QDA", "Linear BPM", "Quadratic BPM", "Cubic BPM", "Nystron BPM"]
 classifiers = [
     KNeighborsClassifier(3),
     SVC(kernel="linear", C=0.025),
@@ -64,7 +66,8 @@ classifiers = [
     QuadraticDiscriminantAnalysis(),
     BayesPointMachine(),
     Pipeline([('poly2', PolynomialFeatures(degree=2)), ('bpm', BayesPointMachine())]),
-    Pipeline([('poly3', PolynomialFeatures(degree=3)), ('bpm', BayesPointMachine())])
+    Pipeline([('poly3', PolynomialFeatures(degree=3)), ('bpm', BayesPointMachine())]),
+    Pipeline([('nys', Nystroem(gamma=.2, random_state=1)), ('bpm', BayesPointMachine())])
 ]
 
 X, y = make_classification(n_features=2, n_redundant=0, n_informative=2,
@@ -73,19 +76,34 @@ rng = np.random.RandomState(2)
 X += 2 * rng.uniform(size=X.shape)
 linearly_separable = (X, y)
 
-datasets = [make_moons(noise=0.3, random_state=0),
-            make_circles(noise=0.2, factor=0.5, random_state=1),
-            linearly_separable
-            ]
+datasets = {
+    "moons": make_moons(noise=0.3, random_state=0),
+    "circles": make_circles(noise=0.2, factor=0.5, random_state=1),
+    "linsep": linearly_separable
+}
+
 
 figure = plt.figure(figsize=(27, 9))
 i = 1
 # iterate over datasets
 for ds in datasets:
     # preprocess dataset, split into training and test part
-    X, y = ds
+    X, y = datasets[ds]
     X = StandardScaler().fit_transform(X)
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=.4)
+
+    savemat(
+        file_name='out/{kind}/data.mat'.format(kind=ds),
+        do_compression=True,
+        mdict=dict(
+            train_x=X_train,
+            train_y=y_train,
+            valid_x=[],
+            valid_y=[],
+            test_x=X_test,
+            test_y=y_test
+        )
+    )
 
     x_min, x_max = X[:, 0].min() - .5, X[:, 0].max() + .5
     y_min, y_max = X[:, 1].min() - .5, X[:, 1].max() + .5
